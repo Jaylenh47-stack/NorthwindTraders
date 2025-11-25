@@ -1,12 +1,12 @@
 package com.pluralsight;
 
-public class Products {
+public class Product {
     private int productID;
     private String productName;
     private double unitPrice;
     private int unitsInStock;
 
-    public Products(int productID, String productName, double unitPrice, int unitsInStock) {
+    public Product(int productID, String productName, double unitPrice, int unitsInStock) {
         this.productID = productID;
         this.productName = productName;
         this.unitPrice = unitPrice;
@@ -43,5 +43,15 @@ public class Products {
 
     public void setUnitsInStock(int unitsInStock) {
         this.unitsInStock = unitsInStock;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "productID=" + productID +
+                ", productName='" + productName + '\'' +
+                ", unitPrice=" + unitPrice +
+                ", unitsInStock=" + unitsInStock +
+                '}';
     }
 }

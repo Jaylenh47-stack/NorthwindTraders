@@ -1,6 +1,8 @@
 package com.pluralsight;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -13,14 +15,7 @@ public class Main {
     // create the connection and prepared statement
 
 
-    public static void main (String[] args) throws ClassNotFoundException, SQLException {
-
-        Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/northwind", username, password);
-        Statement statement = connection.createStatement();
-        Class.forName("com.mysql.cj.jdbc.Driver");
-
-
+    public static void main (String[] args) {
 
 
     while(true) {
@@ -32,45 +27,39 @@ public class Main {
                 Select an option:""");
 
         int choice = ConsoleHelper.promptForInt("");
-        switch (choice) {
-            case 1 -> displayAllProducts();
-            case 2 -> displayAllCustomers();
-            case 0 -> return;
+        try{
+            switch (choice) {
+                case 1 -> displayAllProducts();
+                case 2 -> displayAllCustomers();
+                case 0 -> {
+                    return;
+                }
+            }
+        }
+        catch(Exception e){
+            System.out.println("there was an error");
         }
     }
 
 
 
 
-        String query2 = """
-        SELECT
-        
-        CompanyName, ContactName, orders.orderid
-        
-        FROM northwind.customers
-        left join orders on customers.CustomerID = orders.customerid
-        order by ContactName;
-        """;
 
-// 2. Execute your query
-        ResultSet results2 = statement.executeQuery(query);
-
-// process the results
-        while (results2.next()) {
-            String companyName = results2.getString("CompanyName");
-            String contactName = results2.getString("ContactName");
-            int orderId = results2.getInt("orderid");
-
-            System.out.printf("%-30s %-30s %20d\n", companyName, contactName, orderId);
-
-            // System.out.println(companyName);
-        }
 
 
 
 
     }
-    private void displayAllProducts() {
+    private static void displayAllProducts() throws ClassNotFoundException, SQLException {
+        List<Product> products = new ArrayList<>();
+
+        //load mysql driver
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+        Connection connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/northwind", username, password);
+        Statement statement = connection.createStatement();
+
         String query = """
                     SELECT
                     productID, productName, UnitPrice, UnitsInStock
@@ -85,8 +74,49 @@ public class Main {
             double unitPrice = results.getDouble("UnitPrice");
             int unitsInStock = results.getInt("UnitsInStock");
 
-            System.out.printf("%-10d %-30s %-10.2f %-10d\n", productID, productName, unitPrice, unitsInStock);
-
+            Product p = new Product(productID, productName, unitPrice, unitsInStock);
+            products.add(p);
         }
+            products.forEach(System.out::println);
     }
+
+    private static void displayAllCustomers() throws ClassNotFoundException, SQLException {
+        List<Customer> customers = new ArrayList<>();
+
+        //load mysql driver
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+        Connection connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/northwind", username, password);
+        Statement statement = connection.createStatement();
+
+        String query = """
+        SELECT
+        
+        CompanyName, ContactName, City, Country, Phone
+        
+        FROM northwind.customers
+        left join orders on customers.CustomerID = orders.customerid
+        order by ContactName;
+        """;
+
+// 2. Execute your query
+        ResultSet results = statement.executeQuery(query);
+
+// process the results
+        while (results.next()) {
+            String companyName = results.getString("CompanyName");
+            String contactName = results.getString("ContactName");
+            String city = results.getString("City");
+            String country = results.getString("Country");
+            String phone = results.getString("Phone");
+
+            Customer c = new Customer(companyName, contactName, city, country, phone);
+            customers.add(c);
+        }
+        customers.forEach(System.out::println);
+    }
+
+
+
 }
