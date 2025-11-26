@@ -19,42 +19,48 @@ public class Main {
                 What do you want to do?
                  1) Display all products
                  2) Display all customers
+                 3) Display all categories
                  0) Exit
                 Select an option:""");
 
         int choice = ConsoleHelper.promptForInt("");
+
         try{
             switch (choice) {
-                case 1 -> displayAllProducts();
-                case 2 -> displayAllCustomers();
+                case 1 ->  getAllProducts().forEach(System.out::println);
+                case 2 -> getAllCustomers().forEach(System.out::println);
+                case 3 -> getAllCategories().forEach(System.out::println);
                 case 0 -> {
                     return;
                 }
             }
         }
+        catch(ClassNotFoundException e){
+            System.out.println("There was a problem loading the driver: " + e.getMessage());
+        }
+        catch(SQLException e){
+            System.out.println("There was a problem with the database " + e.getMessage());
+        }
         catch(Exception e){
-            System.out.println("there was an error");
+            System.out.println("There was a general error: " + e.getMessage() );
         }
     }
 
-    }
-    private static void displayAllProducts() throws ClassNotFoundException, SQLException {
-        List<Product> products = new ArrayList<>();
 
+    }
+
+
+    private static List<Product> getAllProducts() throws ClassNotFoundException, SQLException {
+        List<Product> products = new ArrayList<>();
+        String query = "SELECT productID, productName, UnitPrice, UnitsInStock FROM products";
 
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-        Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/northwind", username, password);
-        Statement statement = connection.createStatement();
-
-        String query = """
-                    SELECT
-                    productID, productName, UnitPrice, UnitsInStock
-                    
-                    FROM products""";
-
-        ResultSet results = statement.executeQuery(query);
+        try(Connection connection = DriverManager.getConnection(
+                url, username, password);
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query);)
+        {
 
         while (results.next()) {
             int productID = results.getInt("ProductID");
@@ -65,13 +71,14 @@ public class Main {
             Product p = new Product(productID, productName, unitPrice, unitsInStock);
             products.add(p);
         }
-            products.forEach(System.out::println);
+    }
+            return products;
     }
 
-    private static void displayAllCustomers() throws ClassNotFoundException, SQLException {
+    private static List<Customer> getAllCustomers() throws ClassNotFoundException, SQLException {
         List<Customer> customers = new ArrayList<>();
-        String query = " SELECT CompanyName, ContactName, City, Country, Phone FROM northwind.customers order by ContactName; ";
 
+        String query = " SELECT CompanyName, ContactName, City, Country, Phone FROM northwind.customers order by ContactName; ";
 
         Class.forName("com.mysql.cj.jdbc.Driver");
 
@@ -94,7 +101,30 @@ public class Main {
         }
     }
 
-        customers.forEach(System.out::println);
+        return customers;
+    }
+
+    private static List<Category> getAllCategories() throws SQLException, ClassNotFoundException {
+        List<Category> categories = new ArrayList<>();
+
+        String query = "SELECT categoryID, categoryName FROM categories ORDER BY categoryID";
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+        try(Connection connection = DriverManager.getConnection(
+                url, username, password);
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query);)
+        {
+            while(results.next()) {
+                int categoryID = results.getInt("categoryID");
+                String categoryName = results.getString("categoryName");
+
+                Category c = new Category(categoryID, categoryName);
+                categories.add(c);
+            }
+        }
+        return categories;
     }
 
 
