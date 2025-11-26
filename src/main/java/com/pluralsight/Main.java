@@ -17,6 +17,7 @@ public class Main {
     while(true) {
         System.out.println("""
                 What do you want to do?
+                ========================
                  1) Display all products
                  2) Display all customers
                  3) Display all categories
@@ -31,9 +32,11 @@ public class Main {
                 case 2 -> getAllCustomers().forEach(System.out::println);
                 case 3 ->{
                     getAllCategories().forEach(System.out::println);
-                    System.out.println("Would you like to see all products from a category");
-                    String categoryName = ConsoleHelper.promptForString("Enter category name");
-                    getProductsByCategoryID(categoryName).forEach(System.out::println);
+                    boolean yesOrNO = ConsoleHelper.promptForYesNo("Would you like to see all products from a category");
+                    if (yesOrNO){
+                        String categoryName = ConsoleHelper.promptForString("Enter categoryID");
+                        getProductsByCategoryID(categoryName).forEach(System.out::println);
+                    }
 
                 }
 
@@ -158,9 +161,7 @@ public class Main {
                    products.add(p);
                }
            }
-
         }
-
         return products;
     }
 

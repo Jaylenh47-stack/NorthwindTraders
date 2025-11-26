@@ -115,7 +115,11 @@ public class ConsoleHelper {
         return input;
     }
 
+    public static boolean promptForYesNo(String prompt){
 
+        System.out.print(prompt + " (Yes/No):");
+        return scanner.nextLine().toLowerCase().contains("y");
+    }
 
 
 
