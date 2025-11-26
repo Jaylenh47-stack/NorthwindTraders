@@ -29,7 +29,14 @@ public class Main {
             switch (choice) {
                 case 1 ->  getAllProducts().forEach(System.out::println);
                 case 2 -> getAllCustomers().forEach(System.out::println);
-                case 3 -> getAllCategories().forEach(System.out::println);
+                case 3 ->{
+                    getAllCategories().forEach(System.out::println);
+                    System.out.println("Would you like to see all products from a category");
+                    String categoryName = ConsoleHelper.promptForString("Enter category name");
+                    getProductsByCategoryID(categoryName).forEach(System.out::println);
+
+                }
+
                 case 0 -> {
                     return;
                 }
@@ -127,6 +134,35 @@ public class Main {
         return categories;
     }
 
+    private static List<Product> getProductsByCategoryID(String categoryID) throws SQLException, ClassNotFoundException {
+        List<Product> products = new ArrayList<>();
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+        try(Connection connection = DriverManager.getConnection(
+                url, username, password);
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT productID, productName, UnitPrice, unitsInStock" +
+                    " FROM products WHERE categoryID = ? "))
+        {
+            preparedStatement.setString(1, categoryID);
+
+           try(ResultSet results = preparedStatement.executeQuery()){
+
+               while (results.next()) {
+                   int productID = results.getInt("ProductID");
+                   String productName = results.getString("ProductName");
+                   double unitPrice = results.getDouble("UnitPrice");
+                   int unitsInStock = results.getInt("UnitsInStock");
+
+                   Product p = new Product(productID, productName, unitPrice, unitsInStock);
+                   products.add(p);
+               }
+           }
+
+        }
+
+        return products;
+    }
 
 
 }
