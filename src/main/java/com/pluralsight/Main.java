@@ -8,15 +8,11 @@ public class Main {
 
     private static String username = "root";
     private static String password = "yearup";
-
-    // load the driver
-
-
-    // create the connection and prepared statement
+    private static String database = "northwind";
+    private static String url = "jdbc:mysql://localhost:3306/" + database;
 
 
     public static void main (String[] args) {
-
 
     while(true) {
         System.out.println("""
@@ -41,19 +37,11 @@ public class Main {
         }
     }
 
-
-
-
-
-
-
-
-
     }
     private static void displayAllProducts() throws ClassNotFoundException, SQLException {
         List<Product> products = new ArrayList<>();
 
-        //load mysql driver
+
         Class.forName("com.mysql.cj.jdbc.Driver");
 
         Connection connection = DriverManager.getConnection(
@@ -82,26 +70,16 @@ public class Main {
 
     private static void displayAllCustomers() throws ClassNotFoundException, SQLException {
         List<Customer> customers = new ArrayList<>();
+        String query = " SELECT CompanyName, ContactName, City, Country, Phone FROM northwind.customers order by ContactName; ";
 
-        //load mysql driver
+
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-        Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/northwind", username, password);
-        Statement statement = connection.createStatement();
-
-        String query = """
-        SELECT
-        
-        CompanyName, ContactName, City, Country, Phone
-        
-        FROM northwind.customers
-        left join orders on customers.CustomerID = orders.customerid
-        order by ContactName;
-        """;
-
-// 2. Execute your query
-        ResultSet results = statement.executeQuery(query);
+        try(Connection connection = DriverManager.getConnection(
+                url, username, password);
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query);)
+        {
 
 // process the results
         while (results.next()) {
@@ -114,6 +92,8 @@ public class Main {
             Customer c = new Customer(companyName, contactName, city, country, phone);
             customers.add(c);
         }
+    }
+
         customers.forEach(System.out::println);
     }
 
