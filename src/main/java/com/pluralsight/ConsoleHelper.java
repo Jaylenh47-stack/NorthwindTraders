@@ -2,6 +2,7 @@ package com.pluralsight;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleHelper {
@@ -121,6 +122,22 @@ public class ConsoleHelper {
         return scanner.nextLine().toLowerCase().contains("y");
     }
 
+    public static void displayList(List<?> values) {
+        int totalNumber = values.size();
+        int numberPerRow = 5;
+        int indexOfNext = 0;
 
+        while (indexOfNext < totalNumber) {
+
+            for (int i = 1; i <= numberPerRow; i++) {
+                if (indexOfNext >= totalNumber) {
+                    System.out.println();
+                    return;
+                }
+                System.out.printf("%15s", values.get(indexOfNext++).toString());
+            }
+            System.out.println();
+        }
+    }
 
 }

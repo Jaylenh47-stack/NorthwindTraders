@@ -17,6 +17,10 @@ public class DataManager {
         this.ds = ds;
     }
 
+    public BasicDataSource getBasicDataSource() {
+        return ds;
+    }
+
     public List<Product> getAllProducts(BasicDataSource ds) throws SQLException {
         List<Product> products = new ArrayList<>();
         String query = "SELECT productID, productName, UnitPrice, UnitsInStock FROM products";
@@ -80,7 +84,34 @@ public class DataManager {
                 categories.add(c);
             }
         }
-        
+
         return categories;
     }
+
+    public List<Product> getProductsByCategoryID(BasicDataSource ds, String categoryID) throws SQLException {
+        List<Product> products = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "SELECT productID, productName, UnitPrice, unitsInStock FROM products WHERE categoryID = ? ")
+        ){
+
+            preparedStatement.setString(1, categoryID);
+
+            try(ResultSet results = preparedStatement.executeQuery()){
+
+                while (results.next()) {
+                    int productID = results.getInt("ProductID");
+                    String productName = results.getString("ProductName");
+                    double unitPrice = results.getDouble("UnitPrice");
+                    int unitsInStock = results.getInt("UnitsInStock");
+
+                    Product p = new Product(productID, productName, unitPrice, unitsInStock);
+                    products.add(p);
+                }
+            }
+        }
+        return products;
+    }
+
 }
