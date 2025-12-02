@@ -1,18 +1,31 @@
 package com.pluralsight;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Main {
 
-    private static String username = "root";
-    private static String password = "yearup";
-    private static String database = "northwind";
-    private static String url = "jdbc:mysql://localhost:3306/" + database;
+//    private static String username = "root";
+//    private static String password = "yearup";
+//    private static String database = "northwind";
+//    private static String url = "jdbc:mysql://localhost:3306/" + database;
 
 
     public static void main (String[] args) {
+        String username = args[0];
+        String password = args[1];
+        String url = args[2];
+
+        List<Object> objects = new ArrayList<>();
+        String string = "string";
+        int integer = 2;
+
+        objects.add(string);
+        objects.add(integer);
 
     while(true) {
         System.out.println("""
@@ -37,9 +50,7 @@ public class Main {
                         String categoryName = ConsoleHelper.promptForString("Enter categoryID");
                         getProductsByCategoryID(categoryName).forEach(System.out::println);
                     }
-
                 }
-
                 case 0 -> {
                     return;
                 }
@@ -59,31 +70,16 @@ public class Main {
 
     }
 
-
-    private static List<Product> getAllProducts() throws ClassNotFoundException, SQLException {
-        List<Product> products = new ArrayList<>();
-        String query = "SELECT productID, productName, UnitPrice, UnitsInStock FROM products";
-
-        Class.forName("com.mysql.cj.jdbc.Driver");
-
-        try(Connection connection = DriverManager.getConnection(
-                url, username, password);
-            Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query);)
-        {
-
-        while (results.next()) {
-            int productID = results.getInt("ProductID");
-            String productName = results.getString("ProductName");
-            double unitPrice = results.getDouble("UnitPrice");
-            int unitsInStock = results.getInt("UnitsInStock");
-
-            Product p = new Product(productID, productName, unitPrice, unitsInStock);
-            products.add(p);
-        }
+    private static BasicDataSource getBasicDataSource(String username, String password, String URL){
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl(URL);
+        ds.setPassword(password);
+        ds.setUsername(username);
+        return ds;
     }
-            return products;
-    }
+
+
+
 
     private static List<Customer> getAllCustomers() throws ClassNotFoundException, SQLException {
         List<Customer> customers = new ArrayList<>();
